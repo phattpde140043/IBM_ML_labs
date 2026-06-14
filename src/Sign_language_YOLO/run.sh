@@ -9,16 +9,19 @@ VENV_DIR="venv"
 if [ ! -d "$VENV_DIR" ]; then
     echo "Creating virtual environment in $VENV_DIR..."
     python3 -m venv "$VENV_DIR"
+    
+    # Kích hoạt venv tạm để cài đặt
+    source "$VENV_DIR/bin/activate"
+    
+    echo "Installing dependencies from requirements.txt (This might take a few minutes as it downloads PyTorch)..."
+    pip install --upgrade pip
+    pip install -r requirements.txt
+    deactivate
 fi
 
 # 2. Activate the virtual environment
 echo "Activating virtual environment..."
 source "$VENV_DIR/bin/activate"
-
-# 3. Upgrade pip and install dependencies
-echo "Installing dependencies from requirements.txt (This might take a few minutes as it downloads PyTorch)..."
-pip install --upgrade pip
-pip install -r requirements.txt
 
 # 4. Run the inference script
 echo "Starting webcam inference..."
