@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package yolo;
+
+// Dịch vụ AI cho Computer Vision
+service YoloService {
+  // Bi-directional stream: Client gửi luồng ảnh liên tục, Server tính và trả kết quả liên tục
+  rpc StreamPredict (stream VideoFrame) returns (stream InferenceResult) {}
+}
+
+// Gói dữ liệu từ Camera
+message VideoFrame {
+  // Ảnh gốc từ OpenCV được encode thành JPEG để tối ưu đường truyền
+  bytes image_data = 1;
+  int64 timestamp = 2;
+}
+
+// Một ô nhận diện trên màn hình (Bounding Box)
+message BoundingBox {
+  int32 x1 = 1;
+  int32 y1 = 2;
+  int32 x2 = 3;
+  int32 y2 = 4;
+  float confidence = 5;
+  string label = 6;
+}
+
+// Gói kết quả trả về từ Server
+message InferenceResult {
+  repeated BoundingBox boxes = 1;
+  int64 timestamp = 2; // Khớp với timestamp của frame gửi lên
+}
