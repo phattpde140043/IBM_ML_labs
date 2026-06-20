@@ -4,15 +4,23 @@ package yolo;
 
 // Dịch vụ AI cho Computer Vision
 service YoloService {
-  // Bi-directional stream: Client gửi luồng ảnh liên tục, Server tính và trả kết quả liên tục
+  // Lab 1: Bi-directional stream — Client gửi luồng ảnh liên tục, Server trả kết quả liên tục
   rpc StreamPredict (stream VideoFrame) returns (stream InferenceResult) {}
+
+  // Lab 2: Unary batch RPC — Client gửi nhiều frame cùng lúc, Server trả kết quả cho toàn batch
+  rpc BatchPredict (BatchVideoFrame) returns (BatchInferenceResult) {}
 }
 
-// Gói dữ liệu từ Camera
+// Gói dữ liệu từ Camera (1 frame)
 message VideoFrame {
-  // Ảnh gốc từ OpenCV được encode thành JPEG để tối ưu đường truyền
-  bytes image_data = 1;
+  bytes image_data = 1; // Ảnh JPEG-encoded từ OpenCV
   int64 timestamp = 2;
+  int32 camera_id = 3;  // ID camera nguồn (0-7 cho 8 camera)
+}
+
+// Gói batch nhiều frame từ nhiều camera
+message BatchVideoFrame {
+  repeated VideoFrame frames = 1; // Danh sách frames gom từ các camera
 }
 
 // Một ô nhận diện trên màn hình (Bounding Box)
@@ -25,8 +33,14 @@ message BoundingBox {
   string label = 6;
 }
 
-// Gói kết quả trả về từ Server
+// Kết quả inference cho 1 frame
 message InferenceResult {
   repeated BoundingBox boxes = 1;
   int64 timestamp = 2; // Khớp với timestamp của frame gửi lên
+  int32 camera_id = 3; // Khớp với camera_id của frame gửi lên
+}
+
+// Kết quả inference cho toàn batch
+message BatchInferenceResult {
+  repeated InferenceResult results = 1; // Kết quả tương ứng từng frame trong batch
 }

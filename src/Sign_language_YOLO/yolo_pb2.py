@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nyolo.proto\x12\x04yolo\"3\n\nVideoFrame\x12\x12\n\nimage_data\x18\x01 \x01(\x0c\x12\x11\n\ttimestamp\x18\x02 \x01(\x03\"`\n\x0b\x42oundingBox\x12\n\n\x02x1\x18\x01 \x01(\x05\x12\n\n\x02y1\x18\x02 \x01(\x05\x12\n\n\x02x2\x18\x03 \x01(\x05\x12\n\n\x02y2\x18\x04 \x01(\x05\x12\x12\n\nconfidence\x18\x05 \x01(\x02\x12\r\n\x05label\x18\x06 \x01(\t\"F\n\x0fInferenceResult\x12 \n\x05\x62oxes\x18\x01 \x03(\x0b\x32\x11.yolo.BoundingBox\x12\x11\n\ttimestamp\x18\x02 \x01(\x03\x32M\n\x0bYoloService\x12>\n\rStreamPredict\x12\x10.yolo.VideoFrame\x1a\x15.yolo.InferenceResult\"\x00(\x01\x30\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nyolo.proto\x12\x04yolo\"F\n\nVideoFrame\x12\x12\n\nimage_data\x18\x01 \x01(\x0c\x12\x11\n\ttimestamp\x18\x02 \x01(\x03\x12\x11\n\tcamera_id\x18\x03 \x01(\x05\"3\n\x0f\x42\x61tchVideoFrame\x12 \n\x06\x66rames\x18\x01 \x03(\x0b\x32\x10.yolo.VideoFrame\"`\n\x0b\x42oundingBox\x12\n\n\x02x1\x18\x01 \x01(\x05\x12\n\n\x02y1\x18\x02 \x01(\x05\x12\n\n\x02x2\x18\x03 \x01(\x05\x12\n\n\x02y2\x18\x04 \x01(\x05\x12\x12\n\nconfidence\x18\x05 \x01(\x02\x12\r\n\x05label\x18\x06 \x01(\t\"Y\n\x0fInferenceResult\x12 \n\x05\x62oxes\x18\x01 \x03(\x0b\x32\x11.yolo.BoundingBox\x12\x11\n\ttimestamp\x18\x02 \x01(\x03\x12\x11\n\tcamera_id\x18\x03 \x01(\x05\">\n\x14\x42\x61tchInferenceResult\x12&\n\x07results\x18\x01 \x03(\x0b\x32\x15.yolo.InferenceResult2\x92\x01\n\x0bYoloService\x12>\n\rStreamPredict\x12\x10.yolo.VideoFrame\x1a\x15.yolo.InferenceResult\"\x00(\x01\x30\x01\x12\x43\n\x0c\x42\x61tchPredict\x12\x15.yolo.BatchVideoFrame\x1a\x1a.yolo.BatchInferenceResult\"\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,11 +32,15 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'yolo_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_VIDEOFRAME']._serialized_start=20
-  _globals['_VIDEOFRAME']._serialized_end=71
-  _globals['_BOUNDINGBOX']._serialized_start=73
-  _globals['_BOUNDINGBOX']._serialized_end=169
-  _globals['_INFERENCERESULT']._serialized_start=171
-  _globals['_INFERENCERESULT']._serialized_end=241
-  _globals['_YOLOSERVICE']._serialized_start=243
-  _globals['_YOLOSERVICE']._serialized_end=320
+  _globals['_VIDEOFRAME']._serialized_end=90
+  _globals['_BATCHVIDEOFRAME']._serialized_start=92
+  _globals['_BATCHVIDEOFRAME']._serialized_end=143
+  _globals['_BOUNDINGBOX']._serialized_start=145
+  _globals['_BOUNDINGBOX']._serialized_end=241
+  _globals['_INFERENCERESULT']._serialized_start=243
+  _globals['_INFERENCERESULT']._serialized_end=332
+  _globals['_BATCHINFERENCERESULT']._serialized_start=334
+  _globals['_BATCHINFERENCERESULT']._serialized_end=396
+  _globals['_YOLOSERVICE']._serialized_start=399
+  _globals['_YOLOSERVICE']._serialized_end=545
 # @@protoc_insertion_point(module_scope)

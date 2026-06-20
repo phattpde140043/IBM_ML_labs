@@ -40,7 +40,7 @@ class YoloServicer(yolo_pb2_grpc.YoloServiceServicer):
 
             # 2. Xử lý suy luận trên GPU (Bật verbose=True để hiển thị log phân tích)
             # Giảm conf xuống 0.25 để AI dễ dàng bắt được nhiều vật thể mờ/nhỏ hơn trong cùng khung hình
-            results = self.model(frame, conf=0.25, verbose=True)
+            results = self.model(frame, conf=0.25, verbose=False)
             
             # 3. Đóng gói kết quả Bounding Box vào gRPC Message
             result_msg = yolo_pb2.InferenceResult()

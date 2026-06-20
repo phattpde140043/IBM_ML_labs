@@ -1,7 +1,6 @@
 import cv2
 import grpc
 import threading
-import copy
 import sys
 import yolo_pb2
 import yolo_pb2_grpc
@@ -36,7 +35,7 @@ class WebcamStream:
 
     def read(self):
         with self.lock:
-            return self.ret, copy.deepcopy(self.frame)
+            return self.ret, self.frame.copy()
 
     def stop(self):
         self.stopped = True
@@ -45,15 +44,17 @@ class WebcamStream:
 class GrpcWorker:
     """Thread 2: Đẩy ảnh qua gRPC và nhận kết quả (Network Worker)"""
     def __init__(self, target='localhost:50051'):
-        # Thiết lập kênh truyền gRPC tới Server
         self.channel = grpc.insecure_channel(target)
         self.stub = yolo_pb2_grpc.YoloServiceStub(self.channel)
-        
+
         self.frame_to_process = None
         self.latest_boxes = None
         self.stopped = False
         self.lock = threading.Lock()
         self.cond = threading.Condition(self.lock)
+        # Backpressure control: chỉ gửi frame mới sau khi nhận kết quả frame trước
+        self.ready = threading.Event()
+        self.ready.set()
 
     def start(self):
         threading.Thread(target=self.run, daemon=True).start()
@@ -73,15 +74,20 @@ class GrpcWorker:
     def _request_generator(self):
         """Generator đẩy dữ liệu qua luồng Bi-directional gRPC"""
         while not self.stopped:
+            # Chờ server trả kết quả frame trước — tránh tích lũy backlog
+            self.ready.wait()
+            if self.stopped:
+                break
+
             with self.cond:
                 self.cond.wait_for(lambda: self.frame_to_process is not None or self.stopped)
                 if self.stopped:
                     break
                 frame = self.frame_to_process
                 self.frame_to_process = None
-            
+
             if frame is not None:
-                # Nén ảnh thành JPEG để tiết kiệm băng thông mạng
+                self.ready.clear()  # Khoá lại cho đến khi nhận được response
                 _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
                 yield yolo_pb2.VideoFrame(image_data=buffer.tobytes(), timestamp=0)
 
@@ -89,16 +95,18 @@ class GrpcWorker:
         """Vòng lặp ngầm quản lý kết nối mạng"""
         while not self.stopped:
             try:
-                # Khởi tạo kết nối 2 chiều, cho phép chờ Server (wait_for_ready=True) nếu Server đang bận load model
+                self.ready.set()  # Reset khi reconnect để tránh deadlock
                 responses = self.stub.StreamPredict(self._request_generator(), wait_for_ready=True)
-                for response in responses: # Liên tục nhận kết quả từ Server
+                for response in responses:
                     if self.stopped:
                         break
                     with self.lock:
                         self.latest_boxes = response.boxes
+                    self.ready.set()  # Mở khoá — sẵn sàng gửi frame tiếp theo
             except grpc.RpcError as e:
                 if self.stopped:
                     break
+                self.ready.set()  # Mở khoá khi lỗi để tránh deadlock
                 print(f"[Client] Lỗi kết nối gRPC, đang thử lại sau 2 giây... (Chi tiết: {e.details()})")
                 import time
                 time.sleep(2)
@@ -107,6 +115,7 @@ class GrpcWorker:
         with self.cond:
             self.stopped = True
             self.cond.notify()
+        self.ready.set()  # Mở khoá generator nếu đang chờ
         self.channel.close()
 
 def main():

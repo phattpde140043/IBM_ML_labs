@@ -1,7 +1,6 @@
 import cv2
 import threading
 import sys
-import copy
 from ultralytics import YOLO
 
 class WebcamStream:
@@ -34,8 +33,7 @@ class WebcamStream:
 
     def read(self):
         with self.lock:
-            # Dùng deepcopy để tránh frame bị ghi đè trong khi đang xử lý
-            return self.ret, copy.deepcopy(self.frame)
+            return self.ret, self.frame.copy()
 
     def stop(self):
         self.stopped = True

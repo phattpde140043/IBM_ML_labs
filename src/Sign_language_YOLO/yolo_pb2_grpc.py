@@ -40,6 +40,11 @@ class YoloServiceStub:
                 request_serializer=yolo__pb2.VideoFrame.SerializeToString,
                 response_deserializer=yolo__pb2.InferenceResult.FromString,
                 _registered_method=True)
+        self.BatchPredict = channel.unary_unary(
+                '/yolo.YoloService/BatchPredict',
+                request_serializer=yolo__pb2.BatchVideoFrame.SerializeToString,
+                response_deserializer=yolo__pb2.BatchInferenceResult.FromString,
+                _registered_method=True)
 
 
 class YoloServiceServicer:
@@ -47,7 +52,14 @@ class YoloServiceServicer:
     """
 
     def StreamPredict(self, request_iterator, context):
-        """Bi-directional stream: Client gửi luồng ảnh liên tục, Server tính và trả kết quả liên tục
+        """Lab 1: Bi-directional stream — Client gửi luồng ảnh liên tục, Server trả kết quả liên tục
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def BatchPredict(self, request, context):
+        """Lab 2: Unary batch RPC — Client gửi nhiều frame cùng lúc, Server trả kết quả cho toàn batch
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -60,6 +72,11 @@ def add_YoloServiceServicer_to_server(servicer, server):
                     servicer.StreamPredict,
                     request_deserializer=yolo__pb2.VideoFrame.FromString,
                     response_serializer=yolo__pb2.InferenceResult.SerializeToString,
+            ),
+            'BatchPredict': grpc.unary_unary_rpc_method_handler(
+                    servicer.BatchPredict,
+                    request_deserializer=yolo__pb2.BatchVideoFrame.FromString,
+                    response_serializer=yolo__pb2.BatchInferenceResult.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -90,6 +107,33 @@ class YoloService:
             '/yolo.YoloService/StreamPredict',
             yolo__pb2.VideoFrame.SerializeToString,
             yolo__pb2.InferenceResult.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def BatchPredict(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/yolo.YoloService/BatchPredict',
+            yolo__pb2.BatchVideoFrame.SerializeToString,
+            yolo__pb2.BatchInferenceResult.FromString,
             options,
             channel_credentials,
             insecure,
