@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "serena": {
+      "command": "/Users/macos/.local/bin/serena",
+      "args": [
+        "start-mcp-server",
+        "--context", "claude-code",
+        "--project", "/Users/macos/IBM_ML_labs"
+      ]
+    }
+  }
+}
